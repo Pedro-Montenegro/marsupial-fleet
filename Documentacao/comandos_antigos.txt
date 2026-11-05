@@ -1,3 +1,6 @@
+ATENCAO: anotacoes historicas. Varios pacotes, caminhos e servicos citados aqui
+nao existem neste repositorio. Confira antes de copiar um comando.
+
 sudo slcand -o -c -s5 /dev/ttyACM1 slcan0
 sudo ip link set slcan0 up
 candump slcan0

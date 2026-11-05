@@ -1,4 +1,4 @@
-# marsupial_ws/src/marsupial_ui_bridge/setup.py
+# marsupial_ui_bridge/setup.py
 
 from setuptools import setup
 

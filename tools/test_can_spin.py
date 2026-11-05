@@ -16,11 +16,12 @@ Uso:
 import argparse
 import sys
 import time
+from pathlib import Path
 
 import can
 import cantools
 
-DBC_PATH = "/home/mjv/ros2_ws/src/marsupial_robot_base/odrive-cansimple.dbc"
+DBC_PATH = str(Path(__file__).resolve().parents[1] / "marsupial_robot_base" / "odrive-cansimple.dbc")
 CLOSED_LOOP_CONTROL = 8
 IDLE = 1
 VELOCITY_CONTROL = 2

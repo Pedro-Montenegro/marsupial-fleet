@@ -16,7 +16,7 @@ odometria externa opcional, IMU, estado dos eixos e eventos do perfil.
 Inicie previamente os sensores que serão usados como referência. Depois:
 
 ```bash
-cd ~/marsupial_ws
+cd ~/marsupial_fleet_ws
 source /opt/ros/humble/setup.bash
 source install/setup.bash
 ros2 launch marsupial_robot_base performance_test_4wd.launch.py \

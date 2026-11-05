@@ -4,8 +4,8 @@
 # Uso: bash setup_nuc.sh
 set -e
 
-MARSUPIAL_REPO="https://github.com/tatianambsantos/marsupial_ws.git"
-WORKSPACE="$HOME/marsupial_ws"
+MARSUPIAL_REPO="https://github.com/Pedro-Montenegro/marsupial-fleet.git"
+WORKSPACE="$HOME/marsupial_fleet_ws"
 ROS_SETUP="/opt/ros/humble/setup.bash"
 
 echo ""

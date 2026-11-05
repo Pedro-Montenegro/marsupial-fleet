@@ -20,7 +20,22 @@ Plataforma atual: Jetson Orin Nano, ROS 2 Humble, 2× ODrive v3.6 (fw 0.5.1).
 | `m1ct_d2` | Driver do lidar antigo, sem uso, mantido para voltar atrás se preciso |
 | `vl53l8cx_driver` | Driver do sensor VL53L8CX |
 
-`tools/` tem os testes de giro e os scripts de diagnóstico do ODrive.
+`tools/` tem os testes de giro, os scripts de diagnóstico do ODrive, as regras
+de udev e a instalação do Jetson. Anotações antigas estão em `Documentacao/`.
+
+## Estado atual
+
+Compila, mas este workspace ainda não foi testado no robô.
+
+- **CAN:** não rode `odom_node_4wd_can` antes de conferir a placa esquerda,
+  trocada em 2026-10-26. O último registro dela mostra `can_node_id` 16 e 1, e
+  o esperado é 2 e 3. O ID 1 colide com a roda dianteira direita.
+- **Testes de desempenho:** `performance_logger` espera `drive/telemetry`, que
+  o `odom_node_4wd` por USB não publica.
+- **Mapas:** ficam em `~/maps`, fora do repositório. Os launches de localização
+  usam `Lab_30032026.yaml` como padrão; se ele não existir, passe outro mapa.
+- **ODrive:** depois de `save_configuration()`, chame `reboot()`. A placa nem
+  sempre reinicia sozinha.
 
 ## Build
 

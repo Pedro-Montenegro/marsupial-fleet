@@ -1,5 +1,8 @@
 #!/usr/bin/env python3
 """
+ATENÇÃO: feito para a placa esquerda antiga, trocada em 2026-10-26.
+Revise os perfis antes de usar na placa nova.
+
 calibrate_hybrid_left.py
 
 Calibracao da ODrive esquerda (3678387D3333) agora com um motor de cada lado:

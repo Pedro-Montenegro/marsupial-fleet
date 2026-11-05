@@ -11,6 +11,8 @@ odom_node_4wd_can:
     can_channel: "can0"
     can_dbc: "odrive-cansimple.dbc"
 
+    # ATENÇÃO: a placa esquerda foi trocada em 2026-10-26. Confira os node_id dela
+    # antes de rodar este nó (ver README).
     # ── node_id por roda (validado em 2026-08-06) ──────────────────────
     # ODrive direita: axis0(node_id=0)=RR  axis1(node_id=1)=FR
     # ODrive esquerda: axis0(node_id=2)=FL axis1(node_id=3)=RL
