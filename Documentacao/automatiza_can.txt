@@ -1,0 +1,116 @@
+0) (opcional) confirme IDs do seu adaptador
+udevadm info -a -n /dev/ttyACM1 | grep -E 'idVendor|idProduct|serial' -m1 -A2
+
+
+Use os valores que você já coletou: idVendor=16d0, idProduct=117e, serial=2080316B5842.
+
+1) Crie a regra udev
+
+Cria a regra que dispara um template service com o nome do TTY detectado (%k → ttyACM0/1/…); também cria um symlink estável /dev/can_usb (opcional):
+
+sudo tee /etc/udev/rules.d/99-slcan.rules >/dev/null <<'EOF'
+# Dispara service quando um ttyACM* com estes IDs aparecer
+ACTION=="add", SUBSYSTEM=="tty", KERNEL=="ttyACM*", \
+  ATTRS{idVendor}=="16d0", ATTRS{idProduct}=="117e", ATTRS{serial}=="2080316B5842", \
+  TAG+="systemd", ENV{SYSTEMD_WANTS}="slcan@%k.service"
+
+# Symlink estável para referência humana
+ACTION=="add", SUBSYSTEM=="tty", KERNEL=="ttyACM*", \
+  ATTRS{idVendor}=="16d0", ATTRS{idProduct}=="117e", ATTRS{serial}=="2080316B5842", \
+  SYMLINK+="can_usb"
+EOF
+
+# Recarregue o udev
+sudo udevadm control --reload
+
+2) Crie o service template do systemd
+
+Esse serviço recebe o %I com o nome do TTY (ex: ttyACM1) e faz: slcand … /dev/%I → sobe slcan0.
+
+sudo tee /etc/systemd/system/slcan@.service >/dev/null <<'EOF'
+[Unit]
+Description=Setup SLCAN on %I
+BindsTo=dev-%i.device
+After=dev-%i.device
+
+[Service]
+Type=oneshot
+RemainAfterExit=yes
+
+# 1) Anexa slcand no TTY correspondente
+ExecStart=/usr/bin/slcand -o -c -s5 /dev/%I
+
+# 2) Dá um respiro para a interface slcanX aparecer
+ExecStart=/bin/sleep 0.3
+
+# 3) Sobe a interface (assumindo um único adaptador: slcan0)
+ExecStart=/sbin/ip link set slcan0 up
+
+# Parada limpa
+ExecStop=/sbin/ip link set slcan0 down
+ExecStop=/usr/bin/pkill -f "slcand .* /dev/%I"
+
+[Install]
+WantedBy=multi-user.target
+EOF
+
+# Recarregue unidades systemd
+sudo systemctl daemon-reload
+
+
+Observação: se você tiver mais de um adaptador slcan simultâneo, me fala que te mando uma versão que descobre o slcanX recém-criado em vez de assumir slcan0.
+
+3) Teste sem reboot
+
+Desplugue e replugue o adaptador USB, ou simule com trigger:
+
+# simular "add" no subsistema tty
+sudo udevadm trigger -s tty
+
+# ver status do serviço instanciado (ajuste %k se quiser olhar um específico)
+systemctl --no-pager --full status slcan@ttyACM0 || systemctl status slcan@ttyACM1
+
+# conferir se a interface subiu
+ip -details link show | grep -A2 -n slcan
+
+# (opcional) ver o symlink estável
+ls -l /dev/can_usb
+
+
+Se estiver tudo certo, você já consegue:
+
+candump slcan0
+
+4) Ativar no boot (garantia)
+
+Como a udev já dispara o service ao plugar, isso normalmente basta. Mas vale também habilitar o template para multi-user (não causa conflito):
+
+sudo systemctl enable slcan@ttyACM0.service 2>/dev/null || true
+sudo systemctl enable slcan@ttyACM1.service 2>/dev/null || true
+
+
+Isso só registra instâncias específicas. O gatilho real será a regra udev (com %k). Se preferir, pode pular esse enable.
+
+5) Comandos úteis de diagnóstico
+# Logs recentes do serviço (qualquer instância)
+journalctl -u 'slcan@*.service' -n 200 --no-pager
+
+# Ver o que a udev está fazendo em tempo real
+sudo udevadm monitor --environment --udev
+
+# Conferir atributos conferidos pela udev no device atual
+udevadm info -a -n /dev/ttyACM0 | sed -n '1,120p'
+
+6) Reverter / editar
+# Desabilitar e remover serviço template
+sudo systemctl stop 'slcan@*.service'
+sudo rm -f /etc/systemd/system/slcan@.service
+sudo systemctl daemon-reload
+
+# Remover regra udev
+sudo rm -f /etc/udev/rules.d/99-slcan.rules
+sudo udevadm control --reload
+
+Dica extra (qualidade de vida)
+
+Se você curte ter o candump automático rodando num tmux ao plugar, dá pra criar outro template candump@.service que depende de slcan@%I.service.
