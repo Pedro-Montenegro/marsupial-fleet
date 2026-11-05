@@ -57,6 +57,15 @@ código-fonte com RSUSB e CUDA, para não precisar modificar o kernel:
 cmake .. -DBUILD_EXAMPLES=OFF -DFORCE_RSUSB_BACKEND=ON -DBUILD_WITH_CUDA=ON
 ```
 
+Depois, compile o `realsense-ros` no workspace, fora de `src/`. Evite o pacote
+`apt` no Jetson: ele pode trazer outra `librealsense`.
+
+```bash
+cd ~/marsupial_fleet_ws
+git clone --depth 1 --branch 4.58.2 https://github.com/IntelRealSense/realsense-ros.git external/realsense-ros
+colcon build --packages-up-to realsense2_camera realsense2_description --cmake-args -DCMAKE_BUILD_TYPE=Release
+```
+
 O `setup_nuc.sh` instala a biblioteca por `apt` e vale para o NUC, não para o
 Jetson.
 
