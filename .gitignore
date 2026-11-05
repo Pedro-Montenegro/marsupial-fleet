@@ -18,3 +18,4 @@ logs/
 .vscode/
 .codex/
 .agents/
+vl53l8cx_driver/VL53L8CX_ULD_API/vl53_test
