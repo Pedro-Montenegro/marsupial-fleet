@@ -16,7 +16,8 @@ Plataforma atual: Jetson Orin Nano, ROS 2 Humble, 2× ODrive v3.6 (fw 0.5.1).
 | `marsupial_robot_navigation` | Nav2, mapeamento e missões |
 | `marsupial_robot_sensors` | Bringup dos sensores |
 | `marsupial_ui_bridge` | Ponte com a interface |
-| `m1ct_d2`, `sllidar_ros2` | Drivers de lidar |
+| `sllidar_ros2` | Driver do RPLIDAR A2, o lidar em uso (`/dev/rplidar`, tópico `/scan`) |
+| `m1ct_d2` | Driver do lidar antigo, sem uso, mantido para voltar atrás se preciso |
 | `vl53l8cx_driver` | Driver do sensor VL53L8CX |
 
 `tools/` tem os testes de giro e os scripts de diagnóstico do ODrive.
@@ -31,8 +32,25 @@ source /opt/ros/humble/setup.bash
 colcon build
 ```
 
-A câmera RealSense não está neste repositório. Use `librealsense` 2.58.2 e
-`realsense-ros` 4.58.2; `setup_nuc.sh` tem os passos de instalação do SDK.
+## Dependências externas
+
+A câmera RealSense D435i não está neste repositório. Ela usa `realsense-ros`
+4.58.2 e `librealsense` 2.58.2. No Jetson, a `librealsense` foi compilada do
+código-fonte com RSUSB e CUDA, para não precisar modificar o kernel:
+
+```bash
+cmake .. -DBUILD_EXAMPLES=OFF -DFORCE_RSUSB_BACKEND=ON -DBUILD_WITH_CUDA=ON
+```
+
+O `setup_nuc.sh` instala a biblioteca por `apt` e vale para o NUC, não para o
+Jetson.
+
+## Regras de udev
+
+```bash
+sudo cp tools/udev/*.rules /etc/udev/rules.d/
+sudo udevadm control --reload-rules && sudo udevadm trigger
+```
 
 ## Teleoperação
 
