@@ -127,7 +127,7 @@ def dump_errors(ax, label: str):
         pass
 
 
-def calibrate_axis(ax, label: str, timeout: float = 90.0):
+def calibrate_axis(ax, label: str, timeout: float = 180.0):
     print(f"  Calibrando {label} (FULL_CALIBRATION_SEQUENCE)...")
     try:
         ax.clear_errors()

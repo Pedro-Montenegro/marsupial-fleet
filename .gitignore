@@ -3,3 +3,18 @@ __pycache__/
 *.pyo
 .pytest_cache/
 *.egg-info/
+
+# colcon
+build/
+install/
+log/
+
+# Dados e backups locais
+logs/
+*.csv
+*.bag
+*.db3
+*.before-*
+.vscode/
+.codex/
+.agents/
