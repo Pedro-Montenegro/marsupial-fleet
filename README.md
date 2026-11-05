@@ -45,6 +45,12 @@ cmake .. -DBUILD_EXAMPLES=OFF -DFORCE_RSUSB_BACKEND=ON -DBUILD_WITH_CUDA=ON
 O `setup_nuc.sh` instala a biblioteca por `apt` e vale para o NUC, não para o
 Jetson.
 
+## Instalação no Jetson
+
+`tools/setup_jetson.sh` instala as dependências, compila a `librealsense` e
+copia as regras de udev. Baixe antes o código da `librealsense` 2.58.2 em
+`~/marsupial_fleet_ws/`.
+
 ## Regras de udev
 
 ```bash
