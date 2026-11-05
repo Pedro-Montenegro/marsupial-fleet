@@ -1,17 +1,21 @@
 #!/usr/bin/env python3
 """
-Teste físico direto via CAN (CANSimple) de UM eixo/ODrive por vez.
-Não depende de ROS — serve para validar fiação/CAN/axis antes de subir o odom_node.
+Teste físico direto via CAN (CANSimple) de UMA roda por vez.
+Não depende de ROS — serve para validar fiação/CAN/node_id antes de subir o odom_node.
+
+node_id por roda (ver config/robot_4wd_can.yaml):
+    0 = traseira direita    1 = dianteira direita
+    2 = dianteira esquerda  3 = traseira esquerda
 
 Uso:
-    # 1) só checar heartbeat (erro, estado) dos dois eixos, sem mover nada
+    # 1) só checar heartbeat (erro, estado) das quatro rodas, sem mover nada
     python3 test_can_spin.py --check
 
-    # 2) girar o eixo 0 (direito) a 2.0 rev/s por 2s
-    python3 test_can_spin.py 0 2.0
+    # 2) girar a roda 0 (traseira direita) a 1.0 rev/s por 2s
+    python3 test_can_spin.py 0 1.0
 
-    # 3) girar o eixo 1 (esquerdo) a -1.5 rev/s (sentido contrário) por 3s
-    python3 test_can_spin.py 1 -1.5 --duration 3
+    # 3) girar a roda 3 (traseira esquerda) a -1.0 rev/s por 3s
+    python3 test_can_spin.py 3 -1.0 --duration 3
 """
 import argparse
 import sys
@@ -26,6 +30,7 @@ CLOSED_LOOP_CONTROL = 8
 IDLE = 1
 VELOCITY_CONTROL = 2
 PASSTHROUGH = 1
+NODE_IDS = (0, 1, 2, 3)
 
 
 def send(bus, db, name, axis, **signals):
@@ -47,7 +52,7 @@ def read_heartbeat(bus, db, axis, timeout=1.0):
 
 def check(bus, db):
     ok = True
-    for axis in (0, 1):
+    for axis in NODE_IDS:
         hb = read_heartbeat(bus, db, axis, timeout=1.5)
         if hb is None:
             print(f"[axis {axis}] SEM heartbeat — verifique fiação/terminação/node_id no ODrive.")
@@ -92,14 +97,16 @@ def spin(bus, db, axis, vel, duration, clear_errors):
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("axis", type=int, nargs="?", choices=[0, 1], help="0 = direita, 1 = esquerda")
+    parser.add_argument("axis", type=int, nargs="?", choices=NODE_IDS, help="node_id da roda: 0=RR, 1=FR, 2=FL, 3=RL")
     parser.add_argument("vel", type=float, nargs="?", help="velocidade em rev/s (pode ser negativa)")
     parser.add_argument("--duration", type=float, default=2.0, help="duração em segundos (default 2.0)")
     parser.add_argument("--channel", default="can0")
     parser.add_argument("--dbc", default=DBC_PATH)
-    parser.add_argument("--check", action="store_true", help="só lê heartbeat dos 2 eixos, não move nada")
+    parser.add_argument("--check", action="store_true", help="só lê heartbeat das 4 rodas, não move nada")
     parser.add_argument("--clear-errors", action="store_true", help="limpa erros acumulados antes de girar")
     args = parser.parse_args()
+    if args.axis is not None and args.vel is None and not args.check:
+        parser.error("informe a velocidade em rev/s")
 
     db = cantools.database.load_file(args.dbc)
     bus = can.interface.Bus(channel=args.channel, interface="socketcan")
