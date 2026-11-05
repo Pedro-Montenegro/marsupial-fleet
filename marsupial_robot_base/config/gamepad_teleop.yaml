@@ -23,13 +23,13 @@ gamepad_teleop:
     deadman_button: 4
     turbo_button: 5
 
-    linear_speed: 0.20
-    angular_speed: 0.30
-    turbo_linear_speed: 0.30
-    turbo_angular_speed: 0.45
+    linear_speed: 0.40
+    angular_speed: 0.80
+    turbo_linear_speed: 0.60
+    turbo_angular_speed: 1.20
 
     deadzone: 0.12
-    max_linear_accel: 0.40
-    max_angular_accel: 0.80
+    max_linear_accel: 0.60
+    max_angular_accel: 1.60
     joy_timeout: 0.50
     publish_hz: 30.0

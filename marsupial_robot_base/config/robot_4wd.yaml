@@ -14,20 +14,11 @@ odom_node_4wd:
     # Deixe vazio SOMENTE para testes com um único ODrive conectado.
     left_odrive_serial:  "3678387D3333"
     right_odrive_serial: "3553346E3034"
-    right_disabled: false  # false = habilita as quatro rodas
-    # Workaround temporário (2026-07-28): roda FR com AXIS_ERROR_MOTOR_FAILED
-    # recorrente. true = FR fica solta (sem closed loop), RR continua ativa.
-    right_front_disabled: true
-    usb_timeout: 30.0     # segundos aguardando conexão USB
-    # Proteção de hardware: se processo/USB parar, os eixos saem de closed loop.
-    # Deve ser maior que cmd_timeout e ter folga sobre o período do loop (30 Hz).
-    # ATENÇÃO: false remove a proteção contra processo/USB travado.
-    odrive_watchdog_enabled: false
-    odrive_watchdog_timeout: 3.0
+    usb_timeout: 15.0     # segundos aguardando conexão USB
 
     # ── Mapeamento de eixos por ODrive ───────────────────────────────
     # ODrive esquerdo: axis 0 = roda dianteira esq, axis 1 = roda traseira esq
-    # ODrive direito:  axis 0 = roda dianteira dir, axis 1 = roda traseira dir
+    # ODrive direito:  axis 0 = roda traseira dir, axis 1 = roda dianteira dir (confirmado visualmente 2026-10-26)
     left_front_axis:  0
     left_rear_axis:   1
     right_front_axis: 1
@@ -46,8 +37,6 @@ odom_node_4wd:
     odom_topic:          "wheel/odom"
     cmd_vel_topic:       "cmd_vel"
     drive_status_topic:  "ui/drive_status"
-    telemetry_topic:     "drive/telemetry"
-    hz:          30.0   # frequência do loop de odometria (Hz)
+    hz:          10.0   # MKS/Fibre 0.5.x: evita saturar duas ODrives no mesmo hub USB
     publish_tf:  false  # TF publicado por outro nó
-    # Perda de comando: zera as rodas antes de o watchdog de hardware expirar.
-    cmd_timeout: 0.5
+    cmd_timeout: 0.5    # segundos sem cmd_vel → para os motores (watchdog)
